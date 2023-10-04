@@ -1,3 +1,7 @@
 export interface SubscriptionManagerPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
+  subscribe(options: { productId: string }): Promise<void>;
+  hasSubscription(options: {
+    productId: string;
+  }): Promise<{ hasSubscription: boolean }>;
+  showManageSubscriptions(): Promise<void>;
 }

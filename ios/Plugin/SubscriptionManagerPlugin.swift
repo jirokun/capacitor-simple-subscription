@@ -8,11 +8,29 @@ import Capacitor
 @objc(SubscriptionManagerPlugin)
 public class SubscriptionManagerPlugin: CAPPlugin {
     private let implementation = SubscriptionManager()
-
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.resolve([
-            "value": implementation.echo(value)
-        ])
+    
+    @objc func subscribe(_ call: CAPPluginCall) {
+        Task {
+            let productId = call.getString("productId") ?? ""
+            await implementation.subscribe(productId)
+            call.resolve()
+        }
+    }
+    
+    @objc func hasSubscription(_ call: CAPPluginCall) {
+        let productId = call.getString("productId") ?? ""
+        Task {
+            let ret = await implementation.hasSubscription(productId)
+            call.resolve([
+                "hasSubscription": ret
+            ])
+        }
+    }
+    
+    @objc func showManageSubscriptions(_ call: CAPPluginCall) {
+        Task {
+            await implementation.showManageSubscriptions()
+            call.resolve()
+        }
     }
 }
