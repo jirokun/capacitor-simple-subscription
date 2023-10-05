@@ -8,6 +8,7 @@ import Capacitor
 @objc(SubscriptionManagerPlugin)
 public class SubscriptionManagerPlugin: CAPPlugin {
     private let implementation = SubscriptionManager()
+    private let transactionObserver = TransactionObserver()
     
     @objc func subscribe(_ call: CAPPluginCall) {
         Task {

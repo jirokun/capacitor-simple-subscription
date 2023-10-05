@@ -1,5 +1,6 @@
 import Foundation
 import StoreKit
+import AuthenticationServices
 
 
 enum SubscribeError: LocalizedError {
@@ -61,20 +62,15 @@ enum SubscribeError: LocalizedError {
         }
     }
     
-    @objc public func hasSubscription(_ _productId: String) async -> Bool {
-        var validSubscription: Transaction?
-        for await verificationResult in Transaction.currentEntitlements {
-            if case .verified(let transaction) = verificationResult,
-               transaction.productType == .autoRenewable && !transaction.isUpgraded {
-                validSubscription = transaction
+    @objc public func hasSubscription(_ productId: String) async -> Bool {
+        if let json = UserDefaults.standard.object(forKey: "subscription:" + productId) as? Data {
+            let decoder = JSONDecoder()
+            if let loadedSubscription = try? decoder.decode(Subscription.self, from: json) {
+                print(loadedSubscription.expirationDate)
+                return loadedSubscription.expirationDate > Date()
             }
         }
-        if let productId = validSubscription?.productID {
-            // 特典を付与
-            return true
-        } else {
-            return false
-        }
+        return false
     }
     
     @objc public func showManageSubscriptions() async {
