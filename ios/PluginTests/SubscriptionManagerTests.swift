@@ -12,14 +12,12 @@ class SubscriptionManagerTests: XCTestCase {
         super.tearDown()
     }
 
-    func testEcho() {
-        // This is an example of a functional test case for a plugin.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-
+    func testGetSubscription() async {
         let implementation = SubscriptionManager()
-        let value = "Hello, World!"
-        let result = implementation.echo(value)
+        let productId = "TEGAKI_SANSU_UNLOCK"
+        let result = await implementation.getSubscription(productId)
+        let actual: String = result!["productId"] as! String
 
-        XCTAssertEqual(value, result)
+        XCTAssertEqual(actual, productId)
     }
 }
