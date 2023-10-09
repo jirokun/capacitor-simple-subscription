@@ -18,19 +18,12 @@ final class TransactionObserver {
     private func newTransactionListenerTask() -> Task<Void, Never> {
         Task(priority: .background) {
             for await verificationResult in Transaction.updates {
-                self.handle(updatedTransaction: verificationResult)
+                await self.handle(updatedTransaction: verificationResult)
             }
         }
     }
     
-    private func storeSubscription(subscription: Subscription, productID: String) {
-        let encoder = JSONEncoder()
-        if let encoded = try? encoder.encode(subscription) {
-            UserDefaults.standard.set(encoded, forKey: "subscription:" + productID)
-        }
-    }
-    
-    private func handle(updatedTransaction verificationResult: VerificationResult<Transaction>) {
+    private func handle(updatedTransaction verificationResult: VerificationResult<Transaction>) async {
         guard case .verified(let transaction) = verificationResult else {
             // Ignore unverified transactions.
             return
@@ -41,19 +34,18 @@ final class TransactionObserver {
             // Transaction.revocationReason provides details about
             // the revoked transaction.
             print("handle revocation")
-            let subscription = Subscription(productID: transaction.productID, expirationDate: revocationDate)
-            self.storeSubscription(subscription: subscription, productID: transaction.productID)
+            let subscription = Subscription(productId: transaction.productID, expirationDate: revocationDate)
+            SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
         } else if let expirationDate = transaction.expirationDate,
             expirationDate < Date() {
             print("handle expired")
-            return
         } else if transaction.isUpgraded {
             print("handle upgraded")
-            return
         } else {
             print("handle subscription")
-            let subscription = Subscription(productID: transaction.productID, expirationDate: transaction.expirationDate!)
-            self.storeSubscription(subscription: subscription, productID: transaction.productID)
+            let subscription = Subscription(productId: transaction.productID, expirationDate: transaction.expirationDate!)
+            SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
         }
+        await transaction.finish()
     }
 }

@@ -6,5 +6,7 @@
 CAP_PLUGIN(SubscriptionManagerPlugin, "SubscriptionManager",
            CAP_PLUGIN_METHOD(subscribe, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(hasSubscription, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(getSubscription, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(showManageSubscriptions, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(restoreSubscription, CAPPluginReturnPromise);
 )

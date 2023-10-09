@@ -13,6 +13,13 @@ enum SubscribeError: LocalizedError {
 }
 
 @objc public class SubscriptionManager: NSObject {
+    internal static func storeSubscription(subscription: Subscription, productID: String) {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(subscription) {
+            UserDefaults.standard.set(encoded, forKey: "subscription:" + productID)
+        }
+    }
+
     private func purchase(product: Product) async throws -> Transaction {
         // Product.PurchaseResultの取得
         let purchaseResult: Product.PurchaseResult
@@ -51,10 +58,28 @@ enum SubscribeError: LocalizedError {
         do {
             let products = try await Product.products(for: [productId])
             let product = products[0]
-            print(product.displayName)
+            
+            if let status = try await product.subscription?.status {
+                status.forEach {
+                    switch $0.state {
+                    case .expired:
+                        print("expired")
+                    case .inBillingRetryPeriod:
+                        print("inBillingRetryPeriod")
+                    case .inGracePeriod:
+                        print("inGracePeriod")
+                    case .revoked:
+                        print("revoked")
+                    case .subscribed:
+                        print("subscribed")
+                    default:
+                        print("other")
+                    }
+                }
+            }
             let transaction = try await self.purchase(product: product)
-            print(transaction.expirationDate?.ISO8601Format())
-            print("AAAAAAAAAA")
+            let subscription = Subscription(productId: transaction.productID, expirationDate: transaction.expirationDate!)
+            SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
             await transaction.finish()
             print("購入が完了しました。")
         } catch {
@@ -72,7 +97,16 @@ enum SubscribeError: LocalizedError {
         }
         return false
     }
-    
+
+    @objc public func getSubscription(_ productId: String) async -> [String: Any]? {
+        if let json = UserDefaults.standard.object(forKey: "subscription:" + productId) as? Data,
+           let dict = try? JSONSerialization.jsonObject(with: json, options: .allowFragments) as? [String: Any] {
+            return dict
+        } else {
+            return nil
+        }
+    }
+
     @objc public func showManageSubscriptions() async {
         // capacitorのpluginの中でsceneを取得する
         guard let scene = await UIApplication.shared.connectedScenes.first as? UIWindowScene else {
@@ -80,5 +114,24 @@ enum SubscribeError: LocalizedError {
         }
         // 現在の購読状況を確認する
         try? await AppStore.showManageSubscriptions(in: scene)
+    }
+    
+    @objc public func restoreSubscription(_ productId: String) async {
+        print("restore " + productId)
+        for await verificationResult in Transaction.currentEntitlements {
+            // 取り消しや払い戻された transaction は currentEntitlements には現れないので
+            // transaction.revocationDate はチェックしなくて良い
+            guard case .verified(let transaction) = verificationResult else { return }
+            switch transaction.productType {
+            case .autoRenewable:
+                print("restore autoRenewable " + transaction.productID)
+                // transaction が終了していなかった consumable が来る
+                let subscription = Subscription(productId: transaction.productID, expirationDate: transaction.expirationDate!)
+                SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
+            default:
+                print("restore default " + transaction.productID)
+                break
+            }
+        }
     }
 }

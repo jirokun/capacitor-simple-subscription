@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Subscription: Codable {
-    var productID: String
+internal struct Subscription: Codable {
+    var productId: String
     var expirationDate: Date
 }

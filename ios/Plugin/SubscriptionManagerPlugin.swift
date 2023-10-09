@@ -27,10 +27,28 @@ public class SubscriptionManagerPlugin: CAPPlugin {
             ])
         }
     }
-    
+
+    @objc func getSubscription(_ call: CAPPluginCall) {
+        let productId = call.getString("productId") ?? ""
+        Task {
+            let ret = await implementation.getSubscription(productId)
+            call.resolve([
+                "subscription": ret as Any
+            ])
+        }
+    }
+
     @objc func showManageSubscriptions(_ call: CAPPluginCall) {
         Task {
             await implementation.showManageSubscriptions()
+            call.resolve()
+        }
+    }
+    
+    @objc func restoreSubscription(_ call: CAPPluginCall) {
+        Task {
+            let productId = call.getString("productId") ?? ""
+            await implementation.restoreSubscription(productId)
             call.resolve()
         }
     }
