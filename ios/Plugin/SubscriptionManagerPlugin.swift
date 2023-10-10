@@ -13,7 +13,7 @@ public class SubscriptionManagerPlugin: CAPPlugin {
     @objc func subscribe(_ call: CAPPluginCall) {
         Task {
             let productId = call.getString("productId") ?? ""
-            await implementation.subscribe(productId)
+            try! await implementation.subscribe(productId)
             call.resolve()
         }
     }

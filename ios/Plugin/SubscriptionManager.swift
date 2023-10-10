@@ -14,6 +14,7 @@ enum SubscribeError: LocalizedError {
 
 @objc public class SubscriptionManager: NSObject {
     internal static func storeSubscription(subscription: Subscription, productID: String) {
+        print("storeSubscription")
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(subscription) {
             UserDefaults.standard.set(encoded, forKey: "subscription:" + productID)
@@ -23,15 +24,7 @@ enum SubscribeError: LocalizedError {
     private func purchase(product: Product) async throws -> Transaction {
         // Product.PurchaseResultの取得
         let purchaseResult: Product.PurchaseResult
-        do {
-            purchaseResult = try await product.purchase()
-        } catch Product.PurchaseError.productUnavailable {
-            throw SubscribeError.productUnavailable
-        } catch Product.PurchaseError.purchaseNotAllowed {
-            throw SubscribeError.purchaseNotAllowed
-        } catch {
-            throw SubscribeError.otherError
-        }
+        purchaseResult = try await product.purchase()
         // VerificationResultの取得
         let verificationResult: VerificationResult<Transaction>
         switch purchaseResult {
@@ -54,37 +47,35 @@ enum SubscribeError: LocalizedError {
         }
     }
 
-    @objc public func subscribe(_ productId: String) async {
-        do {
-            let products = try await Product.products(for: [productId])
-            let product = products[0]
-            
-            if let status = try await product.subscription?.status {
-                status.forEach {
-                    switch $0.state {
-                    case .expired:
-                        print("expired")
-                    case .inBillingRetryPeriod:
-                        print("inBillingRetryPeriod")
-                    case .inGracePeriod:
-                        print("inGracePeriod")
-                    case .revoked:
-                        print("revoked")
-                    case .subscribed:
-                        print("subscribed")
-                    default:
-                        print("other")
-                    }
+    @objc public func subscribe(_ productId: String) async throws {
+        let products = try await Product.products(for: [productId])
+        let product = products[0]
+        if let status = try await product.subscription?.status {
+            status.forEach {
+                switch $0.state {
+                case .expired:
+                    print("expired")
+                case .inBillingRetryPeriod:
+                    print("inBillingRetryPeriod")
+                case .inGracePeriod:
+                    print("inGracePeriod")
+                case .revoked:
+                    print("revoked")
+                case .subscribed:
+                    print("subscribed")
+                default:
+                    print("other")
                 }
             }
-            let transaction = try await self.purchase(product: product)
-            let subscription = Subscription(productId: transaction.productID, expirationDate: transaction.expirationDate!)
-            SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
-            await transaction.finish()
-            print("購入が完了しました。")
-        } catch {
-            print(error)
         }
+        let transaction = try await self.purchase(product: product)
+        print("TRANSACTION")
+        print(transaction)
+        let subscription = Subscription(productId: transaction.productID, expirationDate: transaction.expirationDate!)
+        SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
+        await transaction.finish()
+        print("TRANSACTION FINISH")
+        print("購入が完了しました。")
     }
     
     @objc public func hasSubscription(_ productId: String) async -> Bool {

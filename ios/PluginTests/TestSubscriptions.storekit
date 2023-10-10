@@ -1,0 +1,110 @@
+{
+  "identifier" : "08570DB8",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_compatibilityTimeRate" : {
+      "3" : 6,
+      "5" : 1004
+    },
+    "_failTransactionsEnabled" : false,
+    "_locale" : "ja",
+    "_storefront" : "JPN",
+    "_storeKitErrors" : [
+      {
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ],
+    "_timeRate" : 1005
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "14B999BD",
+      "localizations" : [
+
+      ],
+      "name" : "net.jirox.tegakisansu",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "300",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6A367850",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "機能制限なしで利用できます",
+              "displayName" : "アンロック",
+              "locale" : "ja"
+            }
+          ],
+          "productID" : "SUBSCRIPTION_MANAGER_TEST",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "MONTHLY",
+          "subscriptionGroupID" : "14B999BD",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

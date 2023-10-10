@@ -7,6 +7,7 @@ final class TransactionObserver {
     var updates: Task<Void, Never>? = nil
     
     init() {
+        print("init")
         updates = newTransactionListenerTask()
     }
 
@@ -24,6 +25,7 @@ final class TransactionObserver {
     }
     
     private func handle(updatedTransaction verificationResult: VerificationResult<Transaction>) async {
+        print("handle")
         guard case .verified(let transaction) = verificationResult else {
             // Ignore unverified transactions.
             return
