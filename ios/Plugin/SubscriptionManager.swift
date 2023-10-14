@@ -20,8 +20,8 @@ enum SubscribeError: LocalizedError {
             UserDefaults.standard.set(encoded, forKey: "subscription:" + productID)
         }
     }
-
-    private func purchase(product: Product) async throws -> Transaction {
+    
+    private func purchase(product: Product) async throws -> Transaction? {
         // Product.PurchaseResultの取得
         let purchaseResult: Product.PurchaseResult
         purchaseResult = try await product.purchase()
@@ -31,13 +31,13 @@ enum SubscribeError: LocalizedError {
         case .success(let result):
             verificationResult = result
         case .userCancelled:
-            throw SubscribeError.userCancelled
+            return nil
         case .pending:
-            throw SubscribeError.pending
+            return nil
         @unknown default:
             throw SubscribeError.otherError
         }
-
+        
         // Transactionの取得
         switch verificationResult {
         case .verified(let transaction):
@@ -46,7 +46,7 @@ enum SubscribeError: LocalizedError {
             throw SubscribeError.failedVerification
         }
     }
-
+    
     @objc public func subscribe(_ productId: String) async throws {
         let products = try await Product.products(for: [productId])
         let product = products[0]
@@ -68,9 +68,9 @@ enum SubscribeError: LocalizedError {
                 }
             }
         }
-        let transaction = try await self.purchase(product: product)
-        print("TRANSACTION")
-        print(transaction)
+        guard let transaction = try await self.purchase(product: product) else {
+            return
+        }
         let subscription = Subscription(productId: transaction.productID, expirationDate: transaction.expirationDate!)
         SubscriptionManager.storeSubscription(subscription: subscription, productID: transaction.productID)
         await transaction.finish()
@@ -78,26 +78,34 @@ enum SubscribeError: LocalizedError {
         print("購入が完了しました。")
     }
     
-    @objc public func hasSubscription(_ productId: String) async -> Bool {
-        if let json = UserDefaults.standard.object(forKey: "subscription:" + productId) as? Data {
-            let decoder = JSONDecoder()
-            if let loadedSubscription = try? decoder.decode(Subscription.self, from: json) {
-                print(loadedSubscription.expirationDate)
-                return loadedSubscription.expirationDate > Date()
-            }
-        }
-        return false
-    }
-
-    @objc public func getSubscription(_ productId: String) async -> [String: Any]? {
-        if let json = UserDefaults.standard.object(forKey: "subscription:" + productId) as? Data,
-           let dict = try? JSONSerialization.jsonObject(with: json, options: .allowFragments) as? [String: Any] {
-            return dict
-        } else {
+    private func getSubscriptFromUserDefaults(_ productId: String) -> Subscription? {
+        guard let json = UserDefaults.standard.object(forKey: "subscription:" + productId) as? Data  else {
             return nil
         }
+        let decoder = JSONDecoder()
+        guard let loadedSubscription = try? decoder.decode(Subscription.self, from: json) else {
+            return nil
+        }
+        return loadedSubscription
     }
-
+    
+    @objc public func hasSubscription(_ productId: String) async -> Bool {
+        guard let subscription = self.getSubscriptFromUserDefaults(productId) else {
+            return false
+        }
+        return subscription.expirationDate > Date()
+    }
+    
+    @objc public func getSubscription(_ productId: String) async -> [String: Any]? {
+        guard let subscription = self.getSubscriptFromUserDefaults(productId) else {
+            return nil
+        }
+        return [
+            "expirationDate": subscription.expirationDate.ISO8601Format(),
+            "productId": subscription.productId
+        ]
+    }
+    
     @objc public func showManageSubscriptions() async {
         // capacitorのpluginの中でsceneを取得する
         guard let scene = await UIApplication.shared.connectedScenes.first as? UIWindowScene else {

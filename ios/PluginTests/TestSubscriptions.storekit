@@ -7,7 +7,8 @@
 
   ],
   "settings" : {
-    "_askToBuyEnabled" : false,
+    "_askToBuyEnabled" : true,
+    "_billingIssuesEnabled" : true,
     "_compatibilityTimeRate" : {
       "3" : 6,
       "5" : 1004
@@ -94,7 +95,7 @@
               "locale" : "ja"
             }
           ],
-          "productID" : "SUBSCRIPTION_MANAGER_TEST",
+          "productID" : "TEGAKI_SANSU_UNLOCK",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "MONTHLY",
           "subscriptionGroupID" : "14B999BD",
