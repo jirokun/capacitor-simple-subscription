@@ -18,12 +18,12 @@ public class SubscriptionManagerPlugin: CAPPlugin {
         }
     }
     
-    @objc func hasSubscription(_ call: CAPPluginCall) {
+    @objc func hasValidSubscription(_ call: CAPPluginCall) {
         let productId = call.getString("productId") ?? ""
         Task {
-            let ret = await implementation.hasSubscription(productId)
+            let ret = await implementation.hasValidSubscription(productId)
             call.resolve([
-                "hasSubscription": ret
+                "hasValidSubscription": ret
             ])
         }
     }

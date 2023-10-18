@@ -9,7 +9,7 @@ export class SubscriptionManagerWeb
   async subscribe(options: { productId: string }): Promise<void> {
     console.log('Cannot use this method on web');
   }
-  async hasSubscription(options: {
+  async hasValidSubscription(options: {
     productId: string;
   }): Promise<{ value: boolean }> {
     console.log('Cannot use this method on web');

@@ -1,8 +1,8 @@
 export interface SubscriptionManagerPlugin {
   subscribe(options: { productId: string }): Promise<void>;
-  hasSubscription(options: {
+  hasValidSubscription(options: {
     productId: string;
-  }): Promise<{ hasSubscription: boolean }>;
+  }): Promise<{ hasValidSubscription: boolean }>;
   getSubscription(options: { productId: string }): Promise<{
     subscription: {
       productId: string;

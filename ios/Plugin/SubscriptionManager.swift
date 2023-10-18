@@ -89,7 +89,7 @@ enum SubscribeError: LocalizedError {
         return loadedSubscription
     }
     
-    @objc public func hasSubscription(_ productId: String) async -> Bool {
+    @objc public func hasValidSubscription(_ productId: String) async -> Bool {
         guard let subscription = self.getSubscriptFromUserDefaults(productId) else {
             return false
         }

@@ -38,8 +38,8 @@ class SubscriptionManagerTests: XCTestCase {
         try await implementation.subscribe(productId)
         XCTAssert(self.session.allTransactions().count == 1)
         XCTAssert(self.session.allTransactions()[0].state == .purchased)
-        let hasSubscription = await implementation.hasSubscription(productId)
-        XCTAssert(hasSubscription == true)
+        let hasValidSubscription = await implementation.hasValidSubscription(productId)
+        XCTAssert(hasValidSubscription == true)
     }
     
     /**
@@ -51,14 +51,14 @@ class SubscriptionManagerTests: XCTestCase {
         XCTAssert(self.session.allTransactions().count == 1)
         var transaction = self.session.allTransactions()[0]
         XCTAssert(transaction.state == .deferred)
-        var hasSubscription = await implementation.hasSubscription(productId)
-        XCTAssert(hasSubscription == false)
+        var hasValidSubscription = await implementation.hasValidSubscription(productId)
+        XCTAssert(hasValidSubscription == false)
         
         try self.session.approveAskToBuyTransaction(identifier: transaction.identifier)
         XCTAssert(self.session.allTransactions().count == 1)
         transaction = self.session.allTransactions()[0]
         XCTAssert(transaction.state == .purchased)
-        hasSubscription = await implementation.hasSubscription(productId)
-        XCTAssert(hasSubscription == true)
+        hasValidSubscription = await implementation.hasValidSubscription(productId)
+        XCTAssert(hasValidSubscription == true)
     }
 }
