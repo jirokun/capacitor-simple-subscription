@@ -1,5 +1,5 @@
 {
-  "name": "subscription-manager",
+  "name": "@jirokun/capacitor-simple-subscription",
   "version": "0.0.1",
   "description": "subscription manager",
   "main": "dist/plugin.cjs.js",
@@ -17,10 +17,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jirokun/subscription-manager.git"
+    "url": "git+https://github.com/jirokun/capacitor-simple-subscription.git"
   },
   "bugs": {
-    "url": "https://github.com/jirokun/subscription-manager/issues"
+    "url": "https://github.com/jirokun/capacitor-simple-subscription/issues"
   },
   "keywords": [
     "capacitor",
